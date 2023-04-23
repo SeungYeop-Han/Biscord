@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.cglib.core.Local;
 import org.springframework.data.annotation.CreatedDate;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -17,10 +18,16 @@ import java.util.function.Supplier;
 public class VerificationToken {
 
     /*
-        ENUM: UsageType
+        ENUM
+            1) UsageType
+            2) CurrentState
      */
     public enum UsageType{
         VERIFY_EMAIL, RETRIEVE_PASSWORD
+    }
+
+    public enum CurrentState{
+        WAITING, VERIFIED, EXPIRED
     }
 
     /*
@@ -34,22 +41,22 @@ public class VerificationToken {
     @Column(
             name = "created_at",
             nullable = false,
-            columnDefinition = "DATETIME"
+            columnDefinition = "TIMESTAMP"
     )
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(
             name = "expired_at",
             nullable = false,
-            columnDefinition = "DATETIME"
+            columnDefinition = "TIMESTAMP"
     )
-    private LocalDateTime expiredAt;
+    private Instant expiredAt;
 
     @Column(
             name = "verified_at",
-            columnDefinition = "DATETIME"
+            columnDefinition = "TIMESTAMP"
     )
-    private LocalDateTime verifiedAt;
+    private Instant verifiedAt;
 
     @Column(name = "token")
     private String token;
@@ -64,6 +71,13 @@ public class VerificationToken {
     )
     @Enumerated(EnumType.STRING)
     private UsageType usageType;
+
+    @Column(
+            name = "cur_state",
+            nullable = false
+    )
+    @Enumerated(EnumType.STRING)
+    private CurrentState currentState;
 
     /*
         References to Member
@@ -81,16 +95,16 @@ public class VerificationToken {
     /*
         Constructors
             1) @NoArgsContructor
-            2) @Builder (createdAt, validTimeSpanInMinute, usage, member)
+            2) @Builder (createdAt, validTimeSpanInSecond, usage, member)
      */
     @Builder
-    public VerificationToken(@NonNull Integer validTimeSpanInMinute, @NonNull Member member, @NonNull UsageType usageType) {
+    public VerificationToken(@NonNull Integer validTimeSpanInSecond, @NonNull Member member, @NonNull UsageType usageType) {
 
         //인증 생성 일시는 엔티티 객체 생성 일시로 정함
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = Instant.now();
 
         //Non null params
-        this.expiredAt = createdAt.plusMinutes(validTimeSpanInMinute);
+        this.expiredAt = createdAt.plusSeconds(validTimeSpanInSecond);
         this.member = member;
         this.usageType = usageType;
     }

@@ -3,7 +3,7 @@ package biscord.backend.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Table(name = "access_log")
 @Entity(name = "AccessLog")
@@ -35,9 +35,9 @@ public class AccessLog {
      */
     @Column(
             name = "last_accessed",
-            columnDefinition = "DATETIME"
+            columnDefinition = "TIMESTAMP"
     )
-    private LocalDateTime lastAccessed;
+    private Instant lastAccessed;
 
     @Column(
             name = "is_auth_info_changed",
@@ -49,7 +49,7 @@ public class AccessLog {
     /*
         Constructors
             1) @NoArgsConstructor
-            2) (member, deviceMac, lastAccessed)
+            2) (member, deviceMac)
      */
     public AccessLog(@NonNull Member member, @NonNull String deviceMac) {
         //Non null param
@@ -57,7 +57,7 @@ public class AccessLog {
         this.accessLogId = new AccessLogId(member.getId(), deviceMac);
 
         // 접속 기록 생성 시 마지막 접속 일시는 현재 서버 시간으로 정함
-        this.lastAccessed = LocalDateTime.now();
+        this.lastAccessed = Instant.now();
         //생성 시 고정 값 할당
         this.isAuthInfoChanged = false;
     }

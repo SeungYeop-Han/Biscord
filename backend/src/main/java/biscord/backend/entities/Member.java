@@ -2,13 +2,11 @@ package biscord.backend.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 
 @Table(
@@ -25,11 +23,9 @@ import java.util.Objects;
         }
 )
 @Entity(name = "Member")
-
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
-
 public class Member {
 
     /*
@@ -79,11 +75,17 @@ public class Member {
     private LocalDate birthDate;
 
     @Column(
-            name = "created_at",
-            columnDefinition = "DATETIME",
+            name = "cur_state",
             nullable = false
     )
-    private LocalDateTime createdAt;
+    private CurrentState currentState;
+
+    @Column(
+            name = "created_at",
+            columnDefinition = "TIMESTAMP",
+            nullable = false
+    )
+    private Instant createdAt;
 
     @Column(
             name = "is_email_verified",
@@ -98,10 +100,11 @@ public class Member {
     private boolean isActivated;
 
     @Column(
-            name = "cur_state",
+            name = "will_be_deleted_at",
+            columnDefinition = "TIMESTAMP",
             nullable = false
     )
-    private CurrentState currentState;
+    private Instant willBeDeletedAt;
 
     /*
         Referenced By
@@ -150,7 +153,7 @@ public class Member {
         this.birthDate = birthDate;
 
         //가입 일시는 엔티티 객체 생성 일시로 정함
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = Instant.now();
 
         //생성 시 고정 값 할당
         this.isEmailVerified = false;
